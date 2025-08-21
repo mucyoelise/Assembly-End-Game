@@ -1,4 +1,4 @@
-import {useState} from "react"
+import { useState, useEffect, useRef } from "react"
 import { languages } from "./dataConfig/languages" 
 import { getRandomWord } from "./utils"
 import Confetti from "react-confetti"
@@ -16,7 +16,7 @@ export default function App (){
     // State values
     const [secretWord, setSecretWord] = useState( () => getRandomWord())
     const [guessedLetters, setGuessedLetters] = useState([])
-
+    
     // Derived values
     const numGuessesLeft = languages.length - 1
     const wrongGuessCount = guessedLetters
@@ -26,9 +26,18 @@ export default function App (){
         (letter => guessedLetters.includes(letter))
     )
     
+    //Playing Congratulations sound when the Game is won
+    useEffect(() => {
+        if (isGameWon) {
+            const congratsAudio = new Audio("/Assembly-End-Game/congrats.mp3")
+            congratsAudio.play()
+        }
+    }, [isGameWon])
+
     const isGameOver = isGameLost || isGameWon
     const lastGuessedLetter = guessedLetters[guessedLetters.length-1]
     const isLastGuessedIncorrect = lastGuessedLetter && !secretWord.includes(lastGuessedLetter)
+    
 
     function addGuessedLetter(letter){
         
@@ -49,8 +58,10 @@ export default function App (){
     return (
 
         <main>
-            {isGameWon && <Confetti recycle={false} numberOfPieces={2000} />}
+            { isGameWon && <Confetti recycle={false} numberOfPieces={2000} /> }
+
             <Header numGuessesLeft = {numGuessesLeft} />
+            
             <GameStatus 
                 isGameLost = {isGameLost} 
                 isGameOver = {isGameOver} 
